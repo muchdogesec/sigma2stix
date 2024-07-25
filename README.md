@@ -323,8 +323,6 @@ python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-04-29 && mv stix2
 python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-05-13 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-05-13.json
 ```
 
-Note, [you can easily download historic Sigma data from our cti_knowledge_base repository so you don't have to run this script](https://github.com/muchdogesec/cti_knowledge_base_store).
-
 ## Useful supporting tools
 
 * To generate STIX 2.1 Objects: [stix2 Python Lib](https://stix2.readthedocs.io/en/latest/)
