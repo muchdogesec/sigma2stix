@@ -17,5 +17,8 @@ check_dir(file_system_path)
 fs = FileSystemStore(file_system_path)
 SIGMA2STIX_MARKING_DEFINITION_URL = "https://raw.githubusercontent.com/muchdogesec/stix4doge/main/objects/marking-definition/sigma2stix.json"
 SIGMA2STIX_IDENTITY_URL = "https://raw.githubusercontent.com/muchdogesec/stix4doge/main/objects/identity/sigma2stix.json"
+MITRE_TACTIC_PATH = "https://attack.mitre.org/tactics/{}"
 MITRE_TECHNIQUE_PATH = "https://attack.mitre.org/techniques/{}"
+MITRE_SOFTWARE_PATH = "https://attack.mitre.org/software/{}"
+MITRE_GROUP_PATH = "https://attack.mitre.org/groups/{}"
 CVE_PATH = "https://nvd.nist.gov/vuln/detail/{}"

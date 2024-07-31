@@ -88,9 +88,15 @@ class SigmaParser:
             elif match := re.match(r'attack\.(t.*)', tag):
                 attack_id = match.group(1).upper()
                 references.append(dict(source_name="mitre-attack", external_id=attack_id, url=config.MITRE_TECHNIQUE_PATH.format(attack_id)))
+            elif match := re.match(r'attack\.(s.*)', tag):
+                attack_id = match.group(1).upper()
+                references.append(dict(source_name="mitre-attack", external_id=attack_id, url=config.MITRE_SOFTWARE_PATH.format(attack_id)))
+            elif match := re.match(r'attack\.(g.*)', tag):
+                attack_id = match.group(1).upper()
+                references.append(dict(source_name="mitre-attack", external_id=attack_id, url=config.MITRE_GROUP_PATH.format(attack_id)))
             elif match := re.match(r'attack\.(.*)', tag):
                 attack_id = match.group(1)
-                references.append(dict(source_name='ATTACK', external_id=attack_id, description='tactic')) #, url=config.TECHNIQUE_PATH.format(attack_id)))
+                references.append(dict(source_name='mitre-attack', external_id=attack_id, description='tactic')) #, url=config.TECHNIQUE_PATH.format(attack_id)))
         return references    
 
     @staticmethod
