@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 
 from stix2 import Indicator, Grouping, Relationship, parse, Identity
@@ -13,37 +14,42 @@ class SigmaParser:
     @classmethod
     def parse_indicator(cls, data:dict, path:str, url: str) -> list:
         data_list = []
-        id = data.get('id')
-        if not config.fs.get(f"indicator--{id}"):
-            try:
-                id = str(uuid.uuid5(config.namespace, f"{id}+sigma"))
-                indicator = Indicator(
-                    id=f"indicator--{id}",
-                    created_by_ref=utils.get_data_from_fs("identity")[0],
-                    created=datetime.strptime(data.get('date'), "%Y/%m/%d"),
-                    modified=datetime.strptime(data.get('modified') if data.get('modified') else data.get('date'), "%Y/%m/%d"),
-                    indicator_types=["malicious-activity","anomalous-activity"],
-                    name=data.get("title"),
-                    description=f"{data.get('description')}. The following false positives can result from this detection; {', '.join(data.get('falsepositives',[]))}",
-                    pattern=data,
-                    pattern_type="sigma",
-                    valid_from=datetime.strptime(data.get('date'), "%Y/%m/%d"),
-                    external_references=[
-                        {
-                            "source_name": "sigma-rule",
-                            "external_id": "rule",
-                            "url": url
-                        }
-                    ] + cls.process_tags_and_labels(data) + utils.generate_all_references(data),
-                    object_marking_refs=[
-                        "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487"
-                    ]+[utils.get_data_from_fs("marking-definition")[0]]
-                )
-                data_list.append(indicator)
-                config.fs.add(indicator)
-            except Exception as e:
-                raise
-                pass
+        try:
+            if data:
+                id = data.get('id')
+                if not config.fs.get(f"indicator--{id}"):
+                    try:
+                        id = str(uuid.uuid5(config.namespace, f"{id}+sigma"))
+                        indicator = Indicator(
+                            id=f"indicator--{id}",
+                            created_by_ref=utils.get_data_from_fs("identity")[0],
+                            created=datetime.strptime(data.get('date'), "%Y/%m/%d"),
+                            modified=datetime.strptime(data.get('modified') if data.get('modified') else data.get('date'), "%Y/%m/%d"),
+                            indicator_types=["malicious-activity","anomalous-activity"],
+                            name=data.get("title"),
+                            description=f"{data.get('description')}. The following false positives can result from this detection; {', '.join(data.get('falsepositives',[]))}",
+                            pattern=data,
+                            pattern_type="sigma",
+                            valid_from=datetime.strptime(data.get('date'), "%Y/%m/%d"),
+                            external_references=[
+                                {
+                                    "source_name": "sigma-rule",
+                                    "external_id": "rule",
+                                    "url": url
+                                }
+                            ] + cls.process_tags_and_labels(data) + utils.generate_all_references(data),
+                            object_marking_refs=[
+                                "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487"
+                            ]+[utils.get_data_from_fs("marking-definition")[0]]
+                        )
+                        data_list.append(indicator)
+                        config.fs.add(indicator)
+                    except Exception as e:
+                        raise
+                        pass
+        except Exception as e:
+            raise
+            pass
         return data_list
 
     @staticmethod

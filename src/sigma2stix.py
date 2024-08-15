@@ -49,8 +49,9 @@ class Sigma2Stix:
                     url = Path(file).absolute().as_uri()
                 temp_data += self.parser.parse_indicator(data, file, url)
                 data_list += temp_data
-                if data.get("related", None):
-                    data_list += self.parser.parse_relationship(data)
+                if data:
+                    if data.get("related", None):
+                        data_list += self.parser.parse_relationship(data)
 
             if len(temp_data)>0 and mode == 'sigmahq':
                 temp_data_ = []
