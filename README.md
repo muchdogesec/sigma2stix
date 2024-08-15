@@ -115,6 +115,10 @@ Here is how sigma2stix maps data to STIX objects from each Sigma Rules YAML.
 
 Note, the Sigma specification defines the attributes that can be found in the YAML files, and some of the taxonomies used for the properties to populate them. [View the specification here](https://sigmahq.io/sigma-specification/).
 
+At a high-level the STIX objects created are linked as shown here;
+
+https://miro.com/app/board/uXjVKpPwTfA=/
+
 ### Marking Definition / Identity
 
 These are hardcoded and imported from our [stix4doge repository](https://github.com/muchdogesec/stix4doge). Specifically these objects;
