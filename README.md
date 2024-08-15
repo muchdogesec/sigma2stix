@@ -174,17 +174,17 @@ The core object created to represent a rule.
             "description": "<SIGMA RULE AUTHOR [N]>"
         },
         {
-            "source_name": "ATTACK",
+            "source_name": "mitre-attack",
             "external_id": "tactic",
             "description": "<SIGMA RULE TAG ATT&CK TACTIC [N]>"
         },
         {
-            "source_name": "ATTACK",
+            "source_name": "mitre-attack",
             "external_id": "technique",
             "description": "<SIGMA RULE TAG ATT&CK TECHNIQUE [N]>"
         },
         {
-            "source_name": "ATTACK",
+            "source_name": "mitre-attack",
             "external_id": "technique",
             "description": "<SIGMA RULE TAG ATT&CK TECHNIQUE [N]>"
         },
@@ -320,10 +320,9 @@ python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-02-26 && mv stix2
 python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-03-11 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-03-11.json && \
 python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-03-26 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-03-26.json && \
 python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-04-29 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-04-29.json && \
-python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-05-13 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-05-13.json
+python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-05-13 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-05-13.json && \
+python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-07-17 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-07-17.json
 ```
-
-Note, [you can easily download historic Sigma data from our cti_knowledge_base repository so you don't have to run this script](https://github.com/muchdogesec/cti_knowledge_base_store).
 
 ## Useful supporting tools
 
