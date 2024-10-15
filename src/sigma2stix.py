@@ -26,7 +26,7 @@ class Sigma2Stix:
         utils.clean_filesystem(config.temporary_path)
         utils.clean_filesystem(config.file_system_path)
         if mode == 'sigmahq':
-            logging.info("Cloning start")
+            logging.info("Cloning start. tag: `%s`", self.tag)
             utils.clone_github_repository(config.source_repo, config.temporary_path, tag_name=self.tag)
             logging.info("Cloning end")
             utils.delete_files_and_folders_except_rules()
@@ -34,7 +34,7 @@ class Sigma2Stix:
         elif mode == 'sigmayaml':
             files = [{mode: yamlfiles}]
 
-        print(files)
+        #print(files)
         self.parser.parse_marking_definition()
         self.parser.parse_identity()
 

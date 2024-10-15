@@ -24,6 +24,7 @@ def check_dir(dir:str):
         os.makedirs(dir)
 
 
+
 def delete_files_and_folders_except_rules(prefix='rules', keep_count=2):
     directory_path = 'data'
     all_items = os.listdir(directory_path)
