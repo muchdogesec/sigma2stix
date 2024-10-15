@@ -2,17 +2,15 @@
 
 ## Overview
 
+![](docs/sigma2stix.png)
+
 A command line tool that converts Sigma Rules into STIX 2.1 Objects
 
 ## tl;dr
 
 [![sigma2stix](https://img.youtube.com/vi/xDA1zVR8LQA/0.jpg)](https://www.youtube.com/watch?v=xDA1zVR8LQA)
 
-## Before you get started
-
-If you do not want to backfill, maintain, or support your own Sigma STIX objects check out CTI Butler which provides a fully manage database of these objects and more!
-
-https://www.ctibutler.com/
+[Watch the demo](https://www.youtube.com/watch?v=xDA1zVR8LQA).
 
 ## Overview
 
