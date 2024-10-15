@@ -1,12 +1,18 @@
 import json
 
 from stix2 import Indicator, Grouping, Relationship, parse, Identity
-from datetime import datetime
+from datetime import datetime, date
 from src import config
 from src import utils
 import uuid
 import re
 
+
+def as_date(d):
+    if isinstance(d, datetime) or isinstance(d, date):
+        return d
+    return datetime.strptime(d, "%Y/%m/%d")
+    
 
 class SigmaParser:
 
@@ -20,14 +26,14 @@ class SigmaParser:
                 indicator = Indicator(
                     id=f"indicator--{id}",
                     created_by_ref=utils.get_data_from_fs("identity")[0],
-                    created=datetime.strptime(data.get('date'), "%Y/%m/%d"),
-                    modified=datetime.strptime(data.get('modified') if data.get('modified') else data.get('date'), "%Y/%m/%d"),
+                    created=as_date(data.get('date')),
+                    modified=as_date(data.get('modified') if data.get('modified') else data.get('date')),
                     indicator_types=["malicious-activity","anomalous-activity"],
                     name=data.get("title"),
                     description=f"{data.get('description')}. The following false positives can result from this detection; {', '.join(data.get('falsepositives',[]))}",
                     pattern=data,
                     pattern_type="sigma",
-                    valid_from=datetime.strptime(data.get('date'), "%Y/%m/%d"),
+                    valid_from=as_date(data.get('date')),
                     external_references=[
                         {
                             "source_name": "sigma-rule",
@@ -60,8 +66,8 @@ class SigmaParser:
                 relation = Relationship(
                     id=f"relationship--{id}",
                     created_by_ref=utils.get_data_from_fs("identity")[0],
-                    created=datetime.strptime(data.get('date'), "%Y/%m/%d"),
-                    modified=datetime.strptime(data.get('modified') if data.get('modified') else data.get('date'), "%Y/%m/%d"),
+                    created=as_date(data.get('date')),
+                    modified=as_date(data.get('modified') if data.get('modified') else data.get('date')),
                     relationship_type=relation.get('type'),
                     source_ref=f"indicator--{source_object_id}",
                     target_ref=f"indicator--{target_object_id}",
