@@ -48,35 +48,34 @@ class SigmaParser:
                 data_list.append(indicator)
                 config.fs.add(indicator)
             except Exception as e:
-                raise
                 pass
         return data_list
 
     @staticmethod
-    def parse_relationship(data:dict):
+    def parse_relationship(data:list):
         data_list = []
-        for relation in data.get("related", None): # type dict
-            #id = f'indicator--{data.get("id")}+'+f'indicator--{relation.get("id")}'
-            #id = str(uuid.uuid5(config.namespace, f"{id}"))
+        for relation in data: 
             source_object_id = uuid.uuid5(config.namespace, f"{data.get('id')}+sigma")
             target_object_id = uuid.uuid5(config.namespace, f"{relation.get('id')}+sigma")
             id = f'indicator--{source_object_id}+' + f'indicator--{target_object_id}'
             id = str(uuid.uuid5(config.namespace, f"{id}"))
-            if not config.fs.get(f"relationship--{id}"):
-                relation = Relationship(
-                    id=f"relationship--{id}",
-                    created_by_ref=utils.get_data_from_fs("identity")[0],
-                    created=as_date(data.get('date')),
-                    modified=as_date(data.get('modified') if data.get('modified') else data.get('date')),
-                    relationship_type=relation.get('type'),
-                    source_ref=f"indicator--{source_object_id}",
-                    target_ref=f"indicator--{target_object_id}",
-                    object_marking_refs=[
-                        "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487"
-                    ]+[utils.get_data_from_fs("marking-definition")[0]]
-                )
-                config.fs.add(relation)
-                data_list.append(relation.serialize())
+            if config.fs.get(f"relationship--{id}"):
+                continue
+
+            relation = Relationship(
+                id=f"relationship--{id}",
+                created_by_ref=utils.get_data_from_fs("identity")[0],
+                created=as_date(data.get('date')),
+                modified=as_date(data.get('modified') if data.get('modified') else data.get('date')),
+                relationship_type=relation.get('type'),
+                source_ref=f"indicator--{source_object_id}",
+                target_ref=f"indicator--{target_object_id}",
+                object_marking_refs=[
+                    "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487"
+                ]+[utils.get_data_from_fs("marking-definition")[0]]
+            )
+            config.fs.add(relation)
+            data_list.append(relation.serialize())
         return data_list
 
     @classmethod
@@ -101,7 +100,7 @@ class SigmaParser:
                 attack_id = match.group(1).upper()
                 references.append(dict(source_name="mitre-attack", external_id=attack_id, url=config.MITRE_GROUP_PATH.format(attack_id)))
             elif match := re.match(r'attack\.(.*)', tag):
-                attack_id = match.group(1)
+                attack_id = match.group(1).replace('_', '-')
                 references.append(dict(source_name='mitre-attack', external_id=attack_id, description='tactic')) #, url=config.TECHNIQUE_PATH.format(attack_id)))
         return references    
 
