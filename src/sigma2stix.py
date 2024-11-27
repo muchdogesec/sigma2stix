@@ -55,7 +55,7 @@ class Sigma2Stix:
                 temp_data += self.parser.parse_indicator(data, file, url)
                 data_list += temp_data
                 if data.get("related", None):
-                    data_list += self.parser.parse_relationship(data['related'])
+                    data_list += self.parser.parse_relationship(data)
 
             if len(temp_data)>0 and mode == 'sigmahq':
                 temp_data_ = []
@@ -66,6 +66,7 @@ class Sigma2Stix:
                 })
 
         self.process_cve_objects()
+        self.process_attack_objects()
         self.prepare_bundle()
         utils.clean_filesystem(config.temporary_path)
 
@@ -80,31 +81,59 @@ class Sigma2Stix:
             if cves:
                 indicator_cve_id_map[indicator['id']] = cves
         cve_ids = itertools.chain(*indicator_cve_id_map.values())
+        logging.info("Resolving CVE Relationships")
         cve_objects = STIXObjectRetriever('vulmatch').get_vulnerabilities(cve_ids)
+        self.process_objects(indicators, indicator_cve_id_map, retrieved_objects=cve_objects, relationship_type='detects')
+        
+    def process_attack_objects(self):
+        indicators = config.fs.query([Filter("type", "=", "indicator")])
+        indicator_attack_id_map : dict[str, list[str]] = {}
+        indicator_attack_tactic_map = {}
+        for indicator in indicators:
+            attack_ids = []
+            attack_names = []
+            for ref in indicator['external_references']:
+                if ref['source_name'] != 'mitre-attack':
+                    continue
+                if ref.get('description') == 'tactic':
+                    attack_names.append(ref['external_id'])
+                else:
+                    attack_ids.append(ref['external_id'])
+            if attack_ids:
+                indicator_attack_id_map[indicator['id']] = attack_ids
+            if attack_names:
+                indicator_attack_tactic_map[indicator['id']] = attack_names
+        attack_ids = tuple(itertools.chain(*indicator_attack_id_map.values()))
+        for matrix in ['enterprise', 'ics', 'mobile']:
+            logging.info(f"Resolving ATT&CK {matrix.upper()} #1: Using ATT&CK ID")
+            attack_objects = STIXObjectRetriever('ctibutler').get_objects_by_external_ids(attack_ids, f'attack-{matrix}', 'objects', 'attack_id')
+            self.process_objects(indicators, indicator_attack_id_map, retrieved_objects=attack_objects, relationship_type='detects')
+            logging.info(f"Resolving ATT&CK {matrix.upper()} Relationships #2: Using ATT&CK Tactic Name")
+            tactic_objects = STIXObjectRetriever('ctibutler').get_attack_tactics(matrix)
+            self.process_objects(indicators, indicator_attack_tactic_map, retrieved_objects=tactic_objects, relationship_type='detects')
+    
+    def process_objects(self, indicators, indicator_to_id_map, retrieved_objects, relationship_type='detects'):
         for indicator in indicators:
             indicator_id = indicator['id']
-            cve_ids = indicator_cve_id_map.get(indicator_id)
-            if not cve_ids:
+            object_keys = indicator_to_id_map.get(indicator_id)
+            if not object_keys:
                 continue
-            for cve_id in cve_ids:
-                cve_obj = cve_objects.get(cve_id)
-                if not cve_obj:
-                    continue
-                cve_obj = cve_obj[0]
-                
-                relationship = dict(
-                    type="relationship",
-                    spec_version="2.1",
-                    created_by_ref=indicator['created_by_ref'],
-                    created=indicator['created'],
-                    modified=indicator['modified'],
-                    relationship_type="detects",
-                    source_ref=indicator_id,
-                    target_ref=cve_obj['id'],
-                    description=f"{indicator['name']} detects {cve_id}",
-                    object_marking_refs=indicator['object_marking_refs'],
-                )
-                relationship['id'] = "relationship--" + str(uuid.uuid5(config.namespace, "{relationship_type}/{source_ref}/{target_ref}".format_map(relationship)))
-                config.fs.add(Relationship(**relationship, allow_custom=True))
-                logging.debug("add cve relationship: {description} {source_ref}/{relationship_type}/{target_ref}".format_map(relationship))
+            for obj_key in object_keys:
+                for obj in retrieved_objects.get(obj_key, []):
+                    relationship = dict(
+                        type="relationship",
+                        spec_version="2.1",
+                        created_by_ref=indicator['created_by_ref'],
+                        created=indicator['created'],
+                        modified=indicator['modified'],
+                        relationship_type=relationship_type,
+                        source_ref=indicator_id,
+                        target_ref=obj['id'],
+                        description=f"{indicator['name']} detects {obj_key}",
+                        object_marking_refs=indicator['object_marking_refs'],
+                    )
+                    relationship['id'] = "relationship--" + str(uuid.uuid5(config.namespace, "{relationship_type}/{source_ref}/{target_ref}".format_map(relationship)))
+                    config.fs.add(Relationship(**relationship, allow_custom=True))
+                    logging.debug("add relationship: {description} {source_ref}/{relationship_type}/{target_ref}".format_map(relationship))
 
+        

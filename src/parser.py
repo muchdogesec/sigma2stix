@@ -54,7 +54,7 @@ class SigmaParser:
     @staticmethod
     def parse_relationship(data:list):
         data_list = []
-        for relation in data: 
+        for relation in data['related']: 
             source_object_id = uuid.uuid5(config.namespace, f"{data.get('id')}+sigma")
             target_object_id = uuid.uuid5(config.namespace, f"{relation.get('id')}+sigma")
             id = f'indicator--{source_object_id}+' + f'indicator--{target_object_id}'

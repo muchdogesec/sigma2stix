@@ -31,6 +31,14 @@ class STIXObjectRetriever:
             arr.append(obj)
         return objects_map
     
+    def get_attack_tactics(self, matrix):
+        objects = self._retrieve_objects(urljoin(self.api_root, f"/api/v1/attack-{matrix}/objects/?type=x-mitre-tactic"), 'objects')
+        objects_map : dict[str, list[dict]] = {}
+        for obj in objects:
+            name = obj['x_mitre_shortname']
+            objects_map.setdefault(name, []).append(obj)
+        return objects_map
+    
     def get_vulnerabilities(self, cve_ids):
         return self.get_objects_by_external_ids(cve_ids, 'cve', 'vulnerabilities', 'cve_id')
     
