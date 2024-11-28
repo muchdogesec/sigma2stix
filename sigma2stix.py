@@ -1,7 +1,9 @@
 import argparse
 from src.sigma2stix import Sigma2Stix
 from pathlib import Path
+from dotenv import load_dotenv
 
+load_dotenv()
 
 def filetype(file):
     path = Path(file)
