@@ -50,6 +50,19 @@ source sigma2stix-venv/bin/activate
 pip3 install -r requirements.txt
 ```
 
+### Configuration options
+
+sigma2stix has various settings that are defined in an `.env` file.
+
+To create a template for the file:
+
+```shell
+cp .env.example .env
+```
+
+To see more information about how to set the variables, and what they do, read the `.env.markdown` file.
+
+
 ## Running the script
 
 ### Mode 1: SigmaHQ/sigma repository -> STIX
