@@ -1,3 +1,4 @@
+import contextlib
 import itertools
 import logging
 from pathlib import Path
@@ -135,5 +136,6 @@ class Sigma2Stix:
                     relationship['id'] = "relationship--" + str(uuid.uuid5(config.namespace, "{relationship_type}/{source_ref}/{target_ref}".format_map(relationship)))
                     config.fs.add(Relationship(**relationship, allow_custom=True))
                     logging.debug("add relationship: {description} {source_ref}/{relationship_type}/{target_ref}".format_map(relationship))
-
+                    with contextlib.suppress(BaseException):
+                        config.fs.add(obj)
         

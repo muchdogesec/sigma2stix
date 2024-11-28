@@ -5,7 +5,7 @@ from .utils import check_dir
 
 logging.basicConfig(
     level=logging.INFO,
-    format="[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s",  # noqa D100 E501
+    format="[%(asctime)s] %(levelname)s - %(message)s",  # noqa D100 E501
     datefmt="%Y-%m-%d - %H:%M:%S",
 )
 
