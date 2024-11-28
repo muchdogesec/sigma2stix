@@ -12,7 +12,7 @@ tags:
     - attack.initial_access
     - attack.t1114
     - detection.emerging_threats
-    - cve.2023.20198
+    - cve.2022.21722
 logsource:
     product: cisco
     service: syslog
