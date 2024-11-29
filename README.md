@@ -300,6 +300,90 @@ For example, this directory path holds 3 rules: https://github.com/SigmaHQ/sigma
 
 Note, in `--mode sigmayaml`, no grouping objects are created.
 
+### MITRE ATT&CK
+
+Inside some Indicators for Sigma Rules are labels with ATT&CK tags. e.g.
+
+```
+    "labels": [
+        "attack.T1055",
+        "attack.T1055.011",
+        "attack.S0039"
+    ]
+```
+
+The labels identifying ATT&CKs always start with attack. followed by the ATT&CK ID.
+
+These are then converted into the ATT&CK ID (e.g. `attack.T1055` -> `T1055`) and looked up using the CTI Butler endpoints;
+
+```shell
+GET /api/v1/attack-enterprise/objects/{attack_id}/
+GET /api/v1/attack-ics/objects/{attack_id}/
+GET /api/v1/attack-mobile/objects/{attack_id}/
+```
+
+The objects returned are imported to the final bundle, and then linked to the Indicator object representing the rule as follows;
+
+```json
+{
+    "type": "relationship",
+    "spec_version": "2.1",
+    "id": "relationship--<UUID V5 LOGIC>",
+    "created_by_ref": "<IMPORTED IDENTITY OBJECT>",
+    "created": "<indicator.created>",
+    "modified": "<indicator.modified>",
+    "relationship_type": "detects",
+    "source_ref": "indicator--<SIGMA INDICATOR STIX OBJECT>",
+    "target_ref": "<ATT&CK STIX OBJECT>",
+    "description": "<SIGMA RULE NAME> <relationship_type without - char> <ATT&CK name>",
+    "object_marking_refs": [
+        "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+        "<MARKING DEFINITION IMPORTED>"
+    ]
+}
+```
+
+To generate the id of SRO, a UUIDv5 is generated using the namespace `860f4c0f-8c26-5889-b39d-ce94368bc416` and the `relationship_type+source_ref+target_ref` values.
+
+### CVEs
+
+Inside some Indicators for Sigma Rules are labels with CVE tags. e.g.
+
+```txt
+    "labels": [
+        "cve.2021.44228"
+    ]
+```
+
+The labels identifying CVEs always start with cve. followed by the CVE ID where the - is replaced with a .. e.g. `cve.2021.44228` is refering to `CVE-2021-44228` and looked up using the CTI Butler CVE endpoint;
+
+```shell
+GET /api/v1/cve/objects/{cve_id}/
+```
+
+The objects returned are imported to the final bundle, and then linked to the Indicator object representing the rule as follows;
+
+```json
+{
+    "type": "relationship",
+    "spec_version": "2.1",
+    "id": "relationship--<UUID V5 LOGIC>",
+    "created_by_ref": "<IMPORTED IDENTITY OBJECT>",
+    "created": "<indicator.created>",
+    "modified": "<indicator.modified>",
+    "relationship_type": "detects",
+    "source_ref": "indicator--<SIGMA INDICATOR STIX OBJECT>",
+    "target_ref": "vulnerability--<CVE VULNERABILITY STIX OBJECT>",
+    "description": "<SIGMA RULE NAME> <relationship_type without - char> <CVE name>",
+    "object_marking_refs": [
+        "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+        "<MARKING DEFINITION IMPORTED>"
+    ]
+}
+```
+
+To generate the id of SRO, a UUIDv5 is generated using the namespace `860f4c0f-8c26-5889-b39d-ce94368bc416` and the `relationship_type+source_ref+target_ref` values.
+
 ### Bundle
 
 sigma2stix also creates a STIX 2.1 Bundle JSON object containing all the other STIX 2.1 Objects created at each run. The Bundle takes the format;
