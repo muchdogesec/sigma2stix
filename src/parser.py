@@ -15,61 +15,64 @@ def as_date(d):
     
 
 class SigmaParser:
-
+    @staticmethod
+    def sigma_id_to_indicator_id(id):
+        return 'indicator--' + str(uuid.uuid5(config.namespace, f"{id}+sigma"))
+    
     @classmethod
     def parse_indicator(cls, data:dict, path:str, url: str) -> list:
         data_list = []
-        id = data.get('id')
-        if not config.fs.get(f"indicator--{id}"):
-            try:
-                id = str(uuid.uuid5(config.namespace, f"{id}+sigma"))
-                indicator = Indicator(
-                    id=f"indicator--{id}",
-                    created_by_ref=utils.get_data_from_fs("identity")[0],
-                    created=as_date(data.get('date')),
-                    modified=as_date(data.get('modified') if data.get('modified') else data.get('date')),
-                    indicator_types=["malicious-activity","anomalous-activity"],
-                    name=data.get("title"),
-                    description=f"{data.get('description')}. The following false positives can result from this detection; {', '.join(data.get('falsepositives',[]))}",
-                    pattern=data,
-                    pattern_type="sigma",
-                    valid_from=as_date(data.get('date')),
-                    external_references=[
-                        {
-                            "source_name": "sigma-rule",
-                            "external_id": "rule",
-                            "url": url
-                        }
-                    ] + cls.process_tags_and_labels(data) + utils.generate_all_references(data),
-                    object_marking_refs=[
-                        "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487"
-                    ]+[utils.get_data_from_fs("marking-definition")[0]]
-                )
-                data_list.append(indicator)
-                config.fs.add(indicator)
-            except Exception as e:
-                pass
-        return data_list
-
-    @staticmethod
-    def parse_relationship(data:list):
-        data_list = []
-        for relation in data['related']: 
-            source_object_id = uuid.uuid5(config.namespace, f"{data.get('id')}+sigma")
-            target_object_id = uuid.uuid5(config.namespace, f"{relation.get('id')}+sigma")
-            id = f'indicator--{source_object_id}+' + f'indicator--{target_object_id}'
-            id = str(uuid.uuid5(config.namespace, f"{id}"))
-            if config.fs.get(f"relationship--{id}"):
-                continue
-
-            relation = Relationship(
-                id=f"relationship--{id}",
+        stix_id = cls.sigma_id_to_indicator_id(data.get('id'))
+        if config.fs.get(stix_id):
+            return []
+        try:
+            indicator = Indicator(
+                id=stix_id,
                 created_by_ref=utils.get_data_from_fs("identity")[0],
                 created=as_date(data.get('date')),
                 modified=as_date(data.get('modified') if data.get('modified') else data.get('date')),
-                relationship_type=relation.get('type'),
-                source_ref=f"indicator--{source_object_id}",
-                target_ref=f"indicator--{target_object_id}",
+                indicator_types=["malicious-activity","anomalous-activity"],
+                name=data.get("title"),
+                description=f"{data.get('description')}. The following false positives can result from this detection; {', '.join(data.get('falsepositives',[]))}",
+                pattern=data,
+                pattern_type="sigma",
+                valid_from=as_date(data.get('date')),
+                external_references=[
+                    {
+                        "source_name": "sigma-rule",
+                        "external_id": "rule",
+                        "url": url
+                    },
+                ] + cls.process_tags_and_labels(data) + utils.generate_all_references(data),
+                object_marking_refs=[
+                    "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487"
+                ]+[utils.get_data_from_fs("marking-definition")[0]]
+            )
+            data_list.append(indicator)
+            config.fs.add(indicator)
+        except Exception as e:
+            pass
+        return data_list
+
+    @staticmethod
+    def parse_relationship(data:dict[str, list[dict]|str]):
+        data_list = []
+        for relation in data['related']: 
+            source_object_id = SigmaParser.sigma_id_to_indicator_id(data.get('id'))
+            target_object_id = SigmaParser.sigma_id_to_indicator_id(relation.get('id'))
+            ref_type = relation.get('type')
+            stix_id = 'relationship--' + str(uuid.uuid5(config.namespace, f"{ref_type}+{source_object_id}+{target_object_id}"))
+            if config.fs.get(stix_id):
+                continue
+
+            relation = Relationship(
+                id=stix_id,
+                created_by_ref=utils.get_data_from_fs("identity")[0],
+                created=as_date(data.get('date')),
+                modified=as_date(data.get('modified') if data.get('modified') else data.get('date')),
+                relationship_type=ref_type,
+                source_ref=source_object_id,
+                target_ref=target_object_id,
                 object_marking_refs=[
                     "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487"
                 ]+[utils.get_data_from_fs("marking-definition")[0]]
