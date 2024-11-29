@@ -26,7 +26,7 @@ The public rules (approved by the Sigma team) are stored in the main Sigma repos
 
 https://github.com/SigmaHQ/sigma/blob/master/rules-emerging-threats/2023/Exploits/CVE-2023-20198/cisco_syslog_cve_2023_20198_ios_xe_web_ui.yml
 
-Here at Signals Corps, most of the data we deal with is in STIX 2.1 format. This is because downstream threat intelligence tools understand STIX.
+Here at DOGESEC, most of the data we deal with is in STIX 2.1 format. This is because downstream threat intelligence tools understand STIX.
 
 Therefore sigma2stix works by converting Sigma Rules to STIX 2.1 objects.
 
@@ -49,6 +49,19 @@ source sigma2stix-venv/bin/activate
 # install requirements
 pip3 install -r requirements.txt
 ```
+
+### Configuration options
+
+sigma2stix has various settings that are defined in an `.env` file.
+
+To create a template for the file:
+
+```shell
+cp .env.example .env
+```
+
+To see more information about how to set the variables, and what they do, read the `.env.markdown` file.
+
 
 ## Running the script
 
@@ -287,6 +300,88 @@ For example, this directory path holds 3 rules: https://github.com/SigmaHQ/sigma
 
 Note, in `--mode sigmayaml`, no grouping objects are created.
 
+### MITRE ATT&CK
+
+Inside some Indicators for Sigma Rules are labels with ATT&CK tags. e.g.
+
+```
+    "labels": [
+        "attack.T1055",
+        "attack.T1055.011",
+        "attack.S0039"
+    ]
+```
+
+The labels identifying ATT&CKs always start with attack. followed by the ATT&CK ID.
+
+These are then converted into the ATT&CK ID (e.g. `attack.T1055` -> `T1055`) and looked up using the CTI Butler endpoints;
+
+```shell
+GET /api/v1/attack-enterprise/objects/{attack_id}/
+```
+
+The objects returned are imported to the final bundle, and then linked to the Indicator object representing the rule as follows;
+
+```json
+{
+    "type": "relationship",
+    "spec_version": "2.1",
+    "id": "relationship--<UUID V5 LOGIC>",
+    "created_by_ref": "<IMPORTED IDENTITY OBJECT>",
+    "created": "<indicator.created>",
+    "modified": "<indicator.modified>",
+    "relationship_type": "detects",
+    "source_ref": "indicator--<SIGMA INDICATOR STIX OBJECT>",
+    "target_ref": "<ATT&CK STIX OBJECT>",
+    "description": "<SIGMA RULE NAME> <relationship_type without - char> <ATT&CK name>",
+    "object_marking_refs": [
+        "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+        "<MARKING DEFINITION IMPORTED>"
+    ]
+}
+```
+
+To generate the id of SRO, a UUIDv5 is generated using the namespace `860f4c0f-8c26-5889-b39d-ce94368bc416` and the `relationship_type+source_ref+target_ref` values.
+
+### CVEs
+
+Inside some Indicators for Sigma Rules are labels with CVE tags. e.g.
+
+```txt
+    "labels": [
+        "cve.2021.44228"
+    ]
+```
+
+The labels identifying CVEs always start with cve. followed by the CVE ID where the - is replaced with a .. e.g. `cve.2021.44228` is refering to `CVE-2021-44228` and looked up using the CTI Butler CVE endpoint;
+
+```shell
+GET /api/v1/cve/objects/{cve_id}/
+```
+
+The objects returned are imported to the final bundle, and then linked to the Indicator object representing the rule as follows;
+
+```json
+{
+    "type": "relationship",
+    "spec_version": "2.1",
+    "id": "relationship--<UUID V5 LOGIC>",
+    "created_by_ref": "<IMPORTED IDENTITY OBJECT>",
+    "created": "<indicator.created>",
+    "modified": "<indicator.modified>",
+    "relationship_type": "detects",
+    "source_ref": "indicator--<SIGMA INDICATOR STIX OBJECT>",
+    "target_ref": "vulnerability--<CVE VULNERABILITY STIX OBJECT>",
+    "description": "<SIGMA RULE NAME> <relationship_type without - char> <CVE name>",
+    "object_marking_refs": [
+        "marking-definition--94868c89-83c2-464b-929b-a1a8aa3c8487",
+        "<MARKING DEFINITION IMPORTED>"
+    ]
+}
+```
+
+To generate the id of SRO, a UUIDv5 is generated using the namespace `860f4c0f-8c26-5889-b39d-ce94368bc416` and the `relationship_type+source_ref+target_ref` values.
+
 ### Bundle
 
 sigma2stix also creates a STIX 2.1 Bundle JSON object containing all the other STIX 2.1 Objects created at each run. The Bundle takes the format;
@@ -305,27 +400,13 @@ To generate the id of the SRO, a UUIDv5 is generated using the namespace `860f4c
 
 ## Backfill old versions
 
-Here is a quick example of how to create bundles representing different versions of CWEs for comparison;
+You can use the following script to get a bundles of rules for every Sigma version published
 
 ```shell
-python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2023-08-24 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2023-08-24.json && \
-python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2023-10-09 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2023-10-09.json && \
-python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2023-10-23 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2023-10-23.json && \
-python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2023-11-06 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2023-11-06.json && \
-python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2023-11-20 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2023-11-20.json && \
-python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2023-12-04 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2023-12-04.json && \
-python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2023-12-21 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2023-12-21.json && \
-python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-01-15 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-01-15.json && \
-python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-01-29 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-01-29.json && \
-python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-02-12 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-02-12.json && \
-python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-02-26 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-02-26.json && \
-python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-03-11 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-03-11.json && \
-python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-03-26 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-03-26.json && \
-python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-04-29 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-04-29.json && \
-python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-05-13 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-05-13.json && \
-python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-07-17 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-07-17.json && \
-python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-09-02 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-09-02.json
+sh utilities/backfill_all.sh
 ```
+
+If you only want the latest version bundle, just run the last line of `utilities/backfill_all.sh` in your terminal.
 
 ## Useful supporting tools
 

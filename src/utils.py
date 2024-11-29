@@ -104,7 +104,7 @@ def store_in_bundle(stix_objects):
     bundle_id = "bundle--" + str(uuid.uuid5(
         config.namespace, generate_md5_from_list(stix_objects))
     )
-    bundle_of_all_objects = Bundle(id=bundle_id, objects=stix_objects)
+    bundle_of_all_objects = Bundle(id=bundle_id, objects=stix_objects, allow_custom=True)
     stix_bundle_file = f"{config.file_system_path}/sigma-rule-bundle.json"
     with open(stix_bundle_file, "w") as f:
         f.write(json.dumps(json.loads(bundle_of_all_objects.serialize()), indent=4))
