@@ -26,7 +26,7 @@ The public rules (approved by the Sigma team) are stored in the main Sigma repos
 
 https://github.com/SigmaHQ/sigma/blob/master/rules-emerging-threats/2023/Exploits/CVE-2023-20198/cisco_syslog_cve_2023_20198_ios_xe_web_ui.yml
 
-Here at Signals Corps, most of the data we deal with is in STIX 2.1 format. This is because downstream threat intelligence tools understand STIX.
+Here at DOGESEC, most of the data we deal with is in STIX 2.1 format. This is because downstream threat intelligence tools understand STIX.
 
 Therefore sigma2stix works by converting Sigma Rules to STIX 2.1 objects.
 
