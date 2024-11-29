@@ -105,7 +105,7 @@ class Sigma2Stix:
             if attack_names:
                 indicator_attack_tactic_map[indicator['id']] = attack_names
         attack_ids = tuple(itertools.chain(*indicator_attack_id_map.values()))
-        for matrix in ['enterprise', 'ics', 'mobile']:
+        for matrix in ['enterprise']:
             logging.info(f"Resolving ATT&CK {matrix.upper()} #1: Using ATT&CK ID")
             attack_objects = STIXObjectRetriever('ctibutler').get_objects_by_external_ids(attack_ids, f'attack-{matrix}', 'objects', 'attack_id')
             self.process_objects(indicators, indicator_attack_id_map, retrieved_objects=attack_objects, relationship_type='detects')

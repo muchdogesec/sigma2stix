@@ -318,8 +318,6 @@ These are then converted into the ATT&CK ID (e.g. `attack.T1055` -> `T1055`) and
 
 ```shell
 GET /api/v1/attack-enterprise/objects/{attack_id}/
-GET /api/v1/attack-ics/objects/{attack_id}/
-GET /api/v1/attack-mobile/objects/{attack_id}/
 ```
 
 The objects returned are imported to the final bundle, and then linked to the Indicator object representing the rule as follows;
