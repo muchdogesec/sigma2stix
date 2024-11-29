@@ -133,7 +133,7 @@ class Sigma2Stix:
                         description=f"{indicator['name']} detects {obj_key}",
                         object_marking_refs=indicator['object_marking_refs'],
                     )
-                    relationship['id'] = "relationship--" + str(uuid.uuid5(config.namespace, "{relationship_type}/{source_ref}/{target_ref}".format_map(relationship)))
+                    relationship['id'] = "relationship--" + str(uuid.uuid5(config.namespace, "{relationship_type}+{source_ref}+{target_ref}".format_map(relationship)))
                     config.fs.add(Relationship(**relationship, allow_custom=True))
                     logging.debug("add relationship: {description} {source_ref}/{relationship_type}/{target_ref}".format_map(relationship))
                     with contextlib.suppress(BaseException):
