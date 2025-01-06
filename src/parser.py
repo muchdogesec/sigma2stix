@@ -37,6 +37,7 @@ class SigmaParser:
                 pattern=data,
                 pattern_type="sigma",
                 valid_from=as_date(data.get('date')),
+                revoked=data.get('status') == 'deprecated',
                 external_references=[
                     {
                         "source_name": "sigma-rule",

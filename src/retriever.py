@@ -40,7 +40,7 @@ class STIXObjectRetriever:
         return objects_map
     
     def get_vulnerabilities(self, cve_ids):
-        return self.get_objects_by_external_ids(cve_ids, 'cve', 'vulnerabilities', 'cve_id')
+        return self.get_objects_by_external_ids(cve_ids, 'cve', 'objects', 'cve_id')
     
     def _retrieve_objects(self, endpoint, key='objects'):
         s = requests.Session()
