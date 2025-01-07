@@ -13,7 +13,7 @@ tags:
     - attack.t1114
     - attack.T1190
     - detection.emerging_threats
-    - cve.2022.21722
+    - cve.2024.56520
 logsource:
     product: cisco
     service: syslog
