@@ -25,21 +25,21 @@ def check_dir(dir:str):
 
 
 
-def delete_files_and_folders_except_rules(prefix='rules', keep_count=2):
+def delete_files_and_folders_except_rules(prefixes=['rules', 'deprecated'], keep_count=20):
     directory_path = 'data'
     all_items = os.listdir(directory_path)
-    rules_folders = [item for item in all_items if item.startswith(prefix)]
-    rules_folders.sort()
-    folders_to_keep = rules_folders[:keep_count]
+
+    rules_folders = []
+
     for item in all_items:
-        item_path = os.path.join(directory_path, item)
-        if os.path.isdir(item_path) and not item.startswith(prefix):
-            if item not in folders_to_keep:
-                shutil.rmtree(item_path)
-                print(f"Deleted: {item_path}")
-        elif os.path.isfile(item_path):
-            if not item.startswith(prefix):
-                os.remove(item_path)
+        for prefix in prefixes:
+            if item.startswith(prefix):
+                rules_folders.append(item)
+                break
+        else:
+            item_path = os.path.join(directory_path, item)
+            shutil.rmtree(item_path, ignore_errors=True)
+            print(f"Deleted: {item_path}")
 
 
 def get_all_yaml_files(folder="data"):

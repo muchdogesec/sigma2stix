@@ -15,4 +15,5 @@ python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-04-29 && mv stix2
 python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-05-13 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-05-13.json && \
 python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-07-17 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-07-17.json && \
 python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-09-02 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-09-02.json && \
-python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-11-10 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-11-10.json
+python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-11-10 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-11-10.json && \
+python3 sigma2stix.py --mode sigmahq --sigma_version_tag r2024-12-19 && mv stix2_objects/sigma-rule-bundle.json bundle_store/sigma-rule-bundle-r2024-12-19.json
