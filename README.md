@@ -76,7 +76,7 @@ python3 sigma2stix.py \
 Where;
 
 * `mode` (required): should always be `sigmahq` if you want to download the latest rules from the [SigmaHQ/sigma repository](https://github.com/SigmaHQ/sigma)
-* `sigma_version_tag` (optional): is the name of the tag in the SigmaHQ/sigma repository ([tags listed here](https://github.com/SigmaHQ/sigma/releases)), e.g. `r2023-08-24`. If no value passed, the master branch will be cloned.
+* `sigma_version_tag` (optional): is the name of the tag in the SigmaHQ/sigma repository ([tags listed here](https://github.com/SigmaHQ/sigma/releases)), e.g. `r2024-12-19`. If no value passed, the master branch will be cloned.
 
 Note this script only supports Sigma Rule version tags in the format `rYYYY-MM-DD`.
 
@@ -94,7 +94,7 @@ python3 sigma2stix.py \
 ```shell
 python3 sigma2stix.py \
 	--mode sigmahq \
-	--sigma_version_tag r2023-08-24
+	--sigma_version_tag r2024-12-19
 ```
 
 ### Mode 2: SigmaHQ YAML file -> STIX
