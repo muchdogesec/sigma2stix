@@ -89,6 +89,7 @@ class SigmaParser:
             if value := data.get(key):
                 references.append(dict(source_name='sigma-rule', external_id=key, description=value))
         for tag in data.get('tags', []):
+            tag = tag.lower()
             if match := re.match(r'detection\.(.*)', tag):
                 references.append(dict(source_name='sigma-rule', external_id='detection', description=match.group(1)))
             elif match := re.match(r'(cve\..*)', tag):
